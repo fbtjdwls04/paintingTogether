@@ -4,15 +4,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class UsrHomeMainContoroller {
+public class UsrHomeArticleContoroller {
 	
-	@RequestMapping("/usr/home/main")
+	@RequestMapping("/usr/article/list")
 	public String showMain() {
-		return "usr/home/main";
+		return "usr/article/list";
 	}
 	
-	@RequestMapping("/")
-	public String showRoot() {
-		return "redirect:/usr/home/main";
-	}
 }

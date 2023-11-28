@@ -18,8 +18,18 @@
 <title>${pageTitle}</title>
 </head>
 <body>
-	<header class="fixed w-full bg-base-300 z-10">
-		
+	<header class="fixed w-full bg-orange-300 z-10 flex items-center">
+		<div class="p-4 flex justify-center text-[white] font-bold">PaintingTogether</div>
+		<div class="grow"></div>
+		<ul class="flex">
+			<c:if test="${rq.getLoginedMemberId() == 0}">
+				<li class="hover:underline"><a class="px-4" href="/usr/member/login">LOGIN</a></li>
+				<li class="hover:underline"><a class="px-4" href="/usr/member/join">JOIN</a></li>
+			</c:if>
+			<c:if test="${rq.getLoginedMemberId() != 0}">
+				<li class="hover:underline"><a class="px-4" href="/usr/member/doLogout">logout</a></li>
+			</c:if>
+		</ul>
 	</header>
 	<div class="h-[100px]"></div>
 	<div class="container mx-auto mb-[25px]">
