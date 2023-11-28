@@ -12,21 +12,21 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Component
 public class WebSocketHandler extends TextWebSocketHandler{
 
-	private static final ConcurrentHashMap<String, WebSocketSession> CLIENTS = new ConcurrentHashMap<String, WebSocketSession>();
+	private static final ConcurrentHashMap<Integer, WebSocketSession> CLIENTS = new ConcurrentHashMap<Integer, WebSocketSession>();
 	
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        CLIENTS.put(session.getId(), session);
+        CLIENTS.put((Integer) session.getAttributes().get("loginedMemberId"), session);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        CLIENTS.remove(session.getId());
+        CLIENTS.remove(session.getAttributes().get("loginedMemberId"));
     }
 	
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-    	String id = session.getId();  //메시지를 보낸 아이디
+    	int id = (Integer) session.getAttributes().get("loginedMemberId");  //메시지를 보낸 아이디
     	String payload = message.getPayload();
     	session.sendMessage(new TextMessage(id + " : " + payload));
         CLIENTS.entrySet().forEach( arg->{

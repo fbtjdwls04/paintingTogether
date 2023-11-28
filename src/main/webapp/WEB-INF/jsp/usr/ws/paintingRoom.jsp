@@ -12,7 +12,7 @@
 		$("#chatInput").on("keydown", function(e){
 			if(e.keyCode == 13){
 				let text = $("#chatInput").val(); 
-				let line = $("<div>"); 
+				let line = $("<div>").css("color","red");
 				line.append(text); 
 				
 				$("#chatInput").val(""); 
@@ -25,7 +25,6 @@
 		ws.onmessage  = function(e){
 			let line = $("<div>");
 			line.append(e.data);
-			console.log(e)
 			$("#chatBox").append(line);
 		}
    	})
