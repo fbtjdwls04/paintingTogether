@@ -49,12 +49,14 @@ public class Rq {
 		}
 	}
 	
-	public void login(int memberId) {
+	public void login(int memberId, String nickname) {
 		this.session.setAttribute("loginedMemberId", memberId);
+		this.session.setAttribute("loginedMemberNickname", nickname);
 	}
 
 	public void logout() {
 		this.session.removeAttribute("loginedMemberId");
+		this.session.removeAttribute("loginedMemberNickname");
 	}
 
 	public String jsReturnOnView(String msg) {

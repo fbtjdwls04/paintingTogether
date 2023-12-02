@@ -8,7 +8,7 @@
    	
    	<section class="container mx-auto">
 		<div class="text-center">
-			<div><a href="../ws/paintingRoom" class="btn">접속</a></div>
+			<div><a href="/usr/ws/paintingRoom" class="btn">접속</a></div>
 		</div>
    	</section>
 	

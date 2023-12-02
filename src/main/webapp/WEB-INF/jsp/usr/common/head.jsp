@@ -19,7 +19,9 @@
 </head>
 <body>
 	<header class="fixed w-full bg-orange-300 z-10 flex items-center">
-		<div class="p-4 flex justify-center text-[white] font-bold">PaintingTogether</div>
+		<div class="p-4 flex justify-center text-[white] font-bold">
+			<a href="/">PaintingTogether</a>
+		</div>
 		<div class="grow"></div>
 		<ul class="flex">
 			<c:if test="${rq.getLoginedMemberId() == 0}">

@@ -87,7 +87,7 @@ public class UsrHomeMemberController {
 			return Util.jsHistoryBack("아이디 또는 비밀번호를 확인해주세요");
 		}
 
-		rq.login(member.getId());
+		rq.login(member.getId(), member.getNickname());
 		
 		return Util.jsReplace(Util.f("%s님 환영합니다", member.getLoginId()), "/");
 	}
