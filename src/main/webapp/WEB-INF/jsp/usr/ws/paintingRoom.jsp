@@ -39,6 +39,9 @@
 			const ws_painting = new WebSocket('ws://localhost:8081/painting');
 			
             const canvas = document.getElementById('canvas');
+            const canvasContainer = document.getElementById('canvasContainer');
+            canvas.width = canvasContainer.offsetWidth;
+            canvas.height = canvasContainer.offsetHeight;
             
             const ctx = canvas.getContext('2d');
 		   	
@@ -82,7 +85,7 @@
 	   	})
     </script>
    	<section class="flex justify-center">
-		<div class="w-[1000px] h-[700px] border-2 flex">
+		<div class="container h-[700px] border-2 flex">
 			<div id="canvasContainer" class="grow">
 				<canvas id="canvas" class="border"></canvas>
 			</div>
@@ -92,12 +95,11 @@
 					&nbsp;
 					<span id="userCnt"></span>
 				</div>
-				<div id="chatBox" class="h-full p-2 overflow-scroll"></div>
+				<div id="chatBox" class="h-full p-2 overflow-y-auto"></div>
 				<input id="chatInput" type="text" class="input input-bordered w-full" />
 			</div>
 		</div>
    	</section>
 	
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js" referrerpolicy="no-referrer"></script>
 	<%@ include file="../common/foot.jsp" %>
 	

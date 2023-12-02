@@ -1,12 +1,14 @@
 package com.koreaIT.paintingTogether.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.koreaIT.paintingTogether.service.MemberService;
 import com.koreaIT.paintingTogether.util.Util;
 import com.koreaIT.paintingTogether.vo.Member;
+import com.koreaIT.paintingTogether.vo.ResultData;
 import com.koreaIT.paintingTogether.vo.Rq;
 
 @Controller
@@ -63,6 +65,23 @@ public class UsrHomeMemberController {
 		return Util.jsReplace("회원가입이 완료되었습니다", "/");
 	}
 	
+	@RequestMapping("/usr/member/loginIdDupChk")
+	@ResponseBody
+	public ResultData<String> loginIdDupChk(String loginId) {
+		
+		if(Util.empty(loginId)) {
+			return ResultData.from("F-1", "아이디를 입력해주세요");
+		}
+		
+		Member member = memberService.getMemberByLoginId(loginId);
+		
+		if(member != null) {
+			return ResultData.from("F-2",Util.f("%s 은(는) 이미 사용중인 아이디입니다", loginId)); 
+		}
+		
+		return ResultData.from("S-1", "사용 가능한 아이디입니다",loginId);
+	}
+	
 	@RequestMapping("/usr/member/login")
 	public String login() {
 		
@@ -90,6 +109,20 @@ public class UsrHomeMemberController {
 		rq.login(member.getId(), member.getNickname());
 		
 		return Util.jsReplace(Util.f("%s님 환영합니다", member.getLoginId()), "/");
+	}
+	
+	@RequestMapping("/usr/member/myPage")
+	public String showMyPage(int id, Model model) {
+
+		if (rq.getLoginedMemberId() != id) {
+			return rq.jsReturnOnView("권한이 없습니다");
+		}
+		
+		Member loginedMember = memberService.getMemberById(id);
+		
+		model.addAttribute("loginedMember", loginedMember);
+		
+		return "/usr/member/myPage";
 	}
 	
 	@RequestMapping("/usr/member/doLogout")

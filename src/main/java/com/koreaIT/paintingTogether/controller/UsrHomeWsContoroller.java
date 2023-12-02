@@ -24,7 +24,7 @@ public class UsrHomeWsContoroller {
 		
 		Member loginedMember = memberService.getMemberById(rq.getLoginedMemberId());
 		
-		model.addAttribute("nickName",loginedMember.getNickname());
+		model.addAttribute("nickname",loginedMember.getNickname());
 		
 		return "/usr/ws/paintingRoom";
 	}
