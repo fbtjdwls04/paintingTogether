@@ -1,4 +1,208 @@
-DROP DATABASE IF EXISTS PT_AM;
-CREATE DATABASE PT_AM;
-USE PT_AM;
+DROP DATABASE IF EXISTS `PT_AM`;
+CREATE DATABASE `PT_AM`;
+USE `PT_AM`;
+
+SHOW TABLES;
+
+CREATE TABLE article(
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    memberId INT UNSIGNED NOT NULL,
+    boardId INT UNSIGNED NOT NULL,
+    regDate DATETIME NOT NULL,
+    updateDate DATETIME NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    `body` TEXT NOT NULL
+);
+
+ALTER TABLE article ADD COLUMN hitCount INT UNSIGNED NOT NULL DEFAULT 0;
+
+CREATE TABLE `member`(
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    regDate DATETIME NOT NULL,
+    updateDate DATETIME NOT NULL,
+    loginId VARCHAR(20) NOT NULL UNIQUE,
+    loginPw VARCHAR(100) NOT NULL,
+    authLevel SMALLINT UNSIGNED NOT NULL DEFAULT 2 COMMENT '권한 레벨 (일반 = 2, 관리자 = 1)',
+    `name` VARCHAR(20) NOT NULL,
+    nickname VARCHAR(20) NOT NULL,
+    cellphoneNum VARCHAR(20) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    delStatus TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '탈퇴 여부 (탈퇴 전 = 0, 탈퇴 후 = 1)',
+    delDate DATETIME COMMENT '탈퇴 날짜'
+);
+
+CREATE TABLE board(
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    regDate DATETIME NOT NULL,
+    updateDate DATETIME NOT NULL,
+    `code` VARCHAR(20) NOT NULL COMMENT 'notice(공지사항), free(자유), ...',
+    `name` VARCHAR(20) NOT NULL COMMENT '게시판 이름'
+);
+
+CREATE TABLE `recommendPoint`(
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    memberId INT UNSIGNED NOT NULL,
+    relTypeCode VARCHAR(20) NOT NULL COMMENT '관련 데이터 타입 코드',
+    relId INT UNSIGNED NOT NULL COMMENT '관련 데이터 번호',
+    `point` INT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE reply(
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    regDate DATETIME NOT NULL,
+    updateDate DATETIME NOT NULL,
+    memberId INT UNSIGNED NOT NULL,
+    relTypeCode VARCHAR(20) NOT NULL,
+    relId INT UNSIGNED NOT NULL,
+    `body` TEXT NOT NULL
+);
+
+TRUNCATE article;
+
+INSERT INTO article
+SET memberId = 1,
+boardId = 1,
+regDate = NOW(),
+updateDate = NOW(),
+title = CONCAT('제목', CEIL(RAND()*100)),
+`body` = CONCAT('내용', CEIL(RAND()*100));
+
+INSERT INTO article
+SET memberId = 2,
+boardId = 2,
+regDate = NOW(),
+updateDate = NOW(),
+title = CONCAT('제목', CEIL(RAND()*100)),
+`body` = CONCAT('내용', CEIL(RAND()*100));
+
+INSERT INTO article
+SET memberId = 3,
+boardId = 2,
+regDate = NOW(),
+updateDate = NOW(),
+title = CONCAT('제목', CEIL(RAND()*100)),
+`body` = CONCAT('내용', CEIL(RAND()*100));
+
+UPDATE article
+SET title = 'dd',
+`body` = 'gg',
+updateDate = NOW();
+
+INSERT INTO `member`
+SET regDate = NOW(),
+updateDate = NOW(),
+loginId = 'admin',
+loginPw = 'admin',
+authLevel = 1,
+`name` = '관리자',
+nickname = 'admin',
+cellphoneNum = '010-0000-0000',
+email = 'admin@admin.com';
+
+INSERT INTO `member`
+SET regDate = NOW(),
+updateDate = NOW(),
+loginId = 'abc',
+loginPw = 'abc',
+`name` = 'abc',
+nickname = 'abc',
+cellphoneNum = '010-0000-0000',
+email = 'a@admin.com';
+
+INSERT INTO `member`
+SET regDate = NOW(),
+updateDate = NOW(),
+loginId = 'b',
+loginPw = 'b',
+`name` = 'b',
+nickname = 'b',
+cellphoneNum = '010-0000-0000',
+email = 'b@admin.com';
+
+INSERT INTO board
+SET `code` = 'notice',
+`name` = '공지사항',
+regDate = NOW(),
+updateDate = NOW();
+
+INSERT INTO board
+SET `code` = 'free',
+`name` = '자유',
+regDate = NOW(),
+updateDate = NOW();
+
+INSERT INTO board
+SET `code` = 'picture',
+`name` = '그림',
+regDate = NOW(),
+updateDate = NOW();
+
+INSERT INTO recommendPoint
+SET memberId = 2,
+relTypeCode = 'article',
+relId = 2,
+`point` = 1;
+
+INSERT INTO recommendPoint
+SET memberId = 3,
+relTypeCode = 'article',
+relId = 1,
+`point` = 1;
+
+INSERT INTO recommendPoint
+SET memberId = 1,
+relTypeCode = 'article',
+relId = 3,
+`point` = 1;
+
+INSERT INTO recommendPoint
+SET memberId = 2,
+relTypeCode = 'article',
+relId = 3,
+`point` = 1;
+
+
+SELECT * 
+FROM article
+ORDER BY id DESC;
+SELECT * FROM `member`;
+SELECT * FROM board;
+SELECT * FROM recommendPoint;
+SELECT * FROM reply;
+
+SELECT * 
+FROM article AS a 
+INNER JOIN `member` AS m 
+ON a.memberId = m.id 
+ORDER BY a.id DESC;
+
+SELECT * 
+FROM article
+ORDER BY id DESC
+LIMIT 10,10;
+
+SELECT MAX(id) FROM article;
+SELECT * FROM article;
+
+SELECT a.*, m.name AS writerName
+FROM article AS a
+INNER JOIN MEMBER AS m
+ON a.memberId = m.id
+WHERE a.boardId = 2
+AND a.title LIKE '%제%'
+ORDER BY a.id DESC;
+
+
+INSERT INTO article
+(
+    regDate, updateDate, memberId, boardId, title, `body`
+)
+SELECT NOW(), NOW(), memberId, 2, title, `body`
+FROM article;
+
+UPDATE article
+SET hitCount = hitCount + 1
+WHERE id = 1;
+
+
 

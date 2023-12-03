@@ -24,8 +24,12 @@
 		</div>
 		<div class="grow"></div>
 		<ul class="flex">
+			<li class="hover:underline"><a class="px-4" href="/">HOME</a></li>
+			<li class="hover:underline"><a class="px-4" href="/usr/article/list?boardId=1">공지사항</a></li>
+			<li class="hover:underline"><a class="px-4" href="/usr/article/list?boardId=2">자유게시판</a></li>
 			<c:if test="${rq.getLoginedMemberId() == 0}">
 				<li class="hover:underline"><a class="px-4" href="/usr/member/login">LOGIN</a></li>
+
 				<li class="hover:underline"><a class="px-4" href="/usr/member/join">JOIN</a></li>
 			</c:if>
 			<c:if test="${rq.getLoginedMemberId() != 0}">

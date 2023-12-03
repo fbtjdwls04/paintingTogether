@@ -55,7 +55,7 @@
             function endPosition() {
                 painting = false;
                 ctx.beginPath();
-                ws_painting.send(canvas.toDataURL());
+                ws_painting.send(canvas.toDataURL('image/jpeg', 0.5));
             }
 
             function draw(e) {
@@ -70,9 +70,9 @@
                 ctx.beginPath();
                 ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
             }
-
+			
             canvas.addEventListener('mousedown', startPosition);
-            canvas.addEventListener('mouseup', endPosition);
+            document.addEventListener('mouseup', endPosition);
             canvas.addEventListener('mousemove', draw);
 			
             ws_painting.onmessage = function(e){
