@@ -55,7 +55,7 @@
             function endPosition() {
                 painting = false;
                 ctx.beginPath();
-                ws_painting.send(canvas.toDataURL('image/jpeg', 0.5));
+                ws_painting.send(canvas.toDataURL());
             }
 
             function draw(e) {
