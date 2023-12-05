@@ -44,7 +44,9 @@
             canvas.height = canvasContainer.offsetHeight;
             
             const ctx = canvas.getContext('2d');
-		   	
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            
             let painting = false;
 
             function startPosition(e) {
@@ -60,10 +62,6 @@
 
             function draw(e) {
                 if (!painting) return;
-
-                ctx.lineWidth = 5;
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = '#000';
 
                 ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
                 ctx.stroke();
@@ -82,10 +80,18 @@
 	            };
 	            drawing.src = e.data;
 	        };
-	   	})
+	        
+	        const colorPicker = document.getElementById('colorPicker');
+	        colorPicker.addEventListener("blur",(e)=> {
+				console.log(e);
+			})
+	   	});
     </script>
    	<section class="flex justify-center">
 		<div class="container h-[700px] border-2 flex">
+			<div>
+				<input id="colorPicker" type="color" />
+			</div>
 			<div id="canvasContainer" class="grow">
 				<canvas id="canvas" class="border"></canvas>
 			</div>

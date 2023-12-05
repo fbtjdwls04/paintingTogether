@@ -24,7 +24,7 @@
 		}
    	</script>
    	
-	<section class="flex justify-center">
+	<section class="flex flex-col justify-center items-center">
 		<form action="doLogin" onsubmit="loginSubmit(this); return false;" method="post">
 			<table class="table text-center border" >
 				<tr>
@@ -36,12 +36,20 @@
 					<td><input class="input input-bordered w-full max-w-xs" type="password" name="loginPw" /></td>
 				</tr>
 				<tr class="hover:bg-base-200">
-					<td colspan="2" class="p-0">
+					<th colspan="2" class="p-0">
 						<button class="hover:bg-gray-200 w-full text-center p-4">로그인</button>
-					</td>
+					</th>
 				</tr>
 			</table>
 		</form>
+		<div class="mt-4">
+			<button class="btn btn-xs btn-outline mr-4">
+				<a href="findLoginId">아이디 찾기</a>
+			</button>
+			<button class="btn btn-xs btn-outline">
+				<a href="findLoginPw">비밀번호 찾기</a>
+			</button>
+		</div>
 	</section>
 	
 	<%@ include file="../common/foot.jsp" %>

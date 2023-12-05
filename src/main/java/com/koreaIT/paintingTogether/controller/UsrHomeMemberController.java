@@ -133,4 +133,83 @@ public class UsrHomeMemberController {
 		
 		return Util.jsReplace("정상적으로 로그아웃 되었습니다","/");
 	}
+	
+	// 계정 찾기
+	@RequestMapping("/usr/member/findLoginId")
+	public String findLoginId() {
+		return "/usr/member/findLoginId";
+	}
+	
+	@RequestMapping("/usr/member/findLoginPw")
+	public String findLoginPw() {
+		return "/usr/member/findLoginPw";
+	}
+	
+	@RequestMapping("/usr/member/doFindLoginId")
+	@ResponseBody
+	public String doFindLoginId(String name, String email, String cellphoneNum) {
+		
+		if(Util.empty(name)) {
+			return Util.jsHistoryBack("이름을 입력해주세요");
+		}
+		
+		if(Util.empty(email)) {
+			return Util.jsHistoryBack("이메일을 입력해주세요");
+		}
+		
+		if(Util.empty(cellphoneNum)) {
+			return Util.jsHistoryBack("전화번호를 입력해주세요");
+		}
+		
+		Member member = memberService.getMemberByNameAndEmailAndCell(name, email, cellphoneNum);
+		
+		if(member == null) {
+			return Util.jsHistoryBack("입력하신 정보와 일치하는 회원이 없습니다");
+		}
+		
+		return Util.jsReplace(Util.f("회원님의 아이디는 [ %s ] 입니다", member.getLoginId()), "login");
+	}
+	
+	@RequestMapping("/usr/member/doFindLoginPw")
+	@ResponseBody
+	public String doFindLoginPw(String loginId, String name, String email, String cellphoneNum) {
+		
+		if(Util.empty(loginId)) {
+			return Util.jsHistoryBack("아이디를 입력해주세요");
+		}
+		
+		if(Util.empty(name)) {
+			return Util.jsHistoryBack("이름을 입력해주세요");
+		}
+		
+		if(Util.empty(email)) {
+			return Util.jsHistoryBack("이메일을 입력해주세요");
+		}
+		
+		if(Util.empty(cellphoneNum)) {
+			return Util.jsHistoryBack("전화번호를 입력해주세요");
+		}
+		
+		Member member = memberService.getMemberByLoginId(loginId);
+
+		if(member == null) {
+			return Util.jsHistoryBack("입력하신 정보와 일치하는 회원이 없습니다");
+		}
+		
+		if(member.getName().equals(name) == false) {
+			return Util.jsHistoryBack("이름이 일치하지 않습니다");
+		}
+		
+		if(member.getEmail().equals(email) == false) {
+			return Util.jsHistoryBack("이메일이 일치하지 않습니다");
+		}
+		
+		if(member.getCellphoneNum().equals(cellphoneNum) == false) {
+			return Util.jsHistoryBack("전화번호가 일치하지 않습니다");
+		}
+		
+		ResultData notifyTempLoginPwByEmailRd = memberService.notifyTempLoginPwByEmail(member);
+
+		return Util.jsReplace(notifyTempLoginPwByEmailRd.getMsg(), "login");
+	}
 }

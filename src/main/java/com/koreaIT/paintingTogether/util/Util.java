@@ -1,5 +1,7 @@
 package com.koreaIT.paintingTogether.util;
 
+import java.util.UUID;
+
 public class Util {
 	public static boolean empty(String str) {
 		
@@ -62,5 +64,9 @@ public class Util {
 		return text.replaceAll("&", "&amp;")
                 .replaceAll("<", "&lt;")
                 .replaceAll(">", "&gt;");
+	}
+
+	public static String createTempPassword() {
+	    return UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10);
 	}
 }

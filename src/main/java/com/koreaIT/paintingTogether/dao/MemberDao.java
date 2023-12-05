@@ -3,6 +3,7 @@ package com.koreaIT.paintingTogether.dao;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import com.koreaIT.paintingTogether.vo.Member;
 
@@ -14,7 +15,7 @@ public interface MemberDao {
 				SET regDate = NOW(),
 				updateDate = NOW(),
 				loginId = #{loginId},
-				loginPw = #{loginPw},
+				loginPw = SHA2(#{loginPw},256)
 				authLevel = 2,
 				`name` = #{name},
 				nickname = #{nickname},
@@ -34,7 +35,7 @@ public interface MemberDao {
 			SELECT * 
 				FROM `member`
 				WHERE loginId = #{loginId}
-				AND loginPw = #{loginPw}
+				AND loginPw = SHA2(#{loginPw}, 256)
 			""")
 	public Member doLogin(String loginId, String loginPw);
 
@@ -44,5 +45,21 @@ public interface MemberDao {
 				WHERE id = #{loginedMemberId}
 			""")
 	public Member getMemberById(int loginedMemberId);
+	
+	@Select("""
+			SELECT * 
+				FROM `member`
+				WHERE name = #{name}
+				AND email = #{email}
+				AND cellphoneNum = #{cellphoneNum}
+			""")
+	public Member getMemberByNameAndEmailAndCell(String name, String email, String cellphoneNum);
+
+	@Update("""
+			UPDATE `member`
+			SET loginPw = SHA2(#{tempPassword},256)
+			WHERE id = #{id}
+			""")
+	public void doPasswordModify(int id, String tempPassword);
 	
 }
