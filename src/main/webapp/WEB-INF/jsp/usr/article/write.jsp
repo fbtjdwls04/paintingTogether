@@ -7,7 +7,7 @@
 <%@ include file="../common/head.jsp" %>
 	
 	<section class="container mx-auto flex justify-center">
-		<form action="doWrite" onsubmit="writeSubmit(this); return false;" method="post">
+		<form action="doWrite" onsubmit="submitForm(this); return false;" method="post">
 			<input name="body" type="hidden"/>
 			<table class="table">
 				<tr>

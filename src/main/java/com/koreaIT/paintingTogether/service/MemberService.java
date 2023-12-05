@@ -62,4 +62,12 @@ public class MemberService {
 	private void setTempPassword(Member member, String tempPassword) {
 		memberDao.doPasswordModify(member.getId(), tempPassword);
 	}
+
+	public void doModify(int id,String name, String nickname, String cellphoneNum, String email) {
+		memberDao.doModify(id,name, nickname, cellphoneNum, email);
+	}
+
+	public void doPasswordModify(int id, String tempPassword) {
+		memberDao.doPasswordModify(id, tempPassword);
+	}
 }

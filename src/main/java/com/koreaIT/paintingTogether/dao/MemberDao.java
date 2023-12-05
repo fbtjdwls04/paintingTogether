@@ -62,4 +62,14 @@ public interface MemberDao {
 			""")
 	public void doPasswordModify(int id, String tempPassword);
 	
+	@Update("""
+			UPDATE `member`
+			SET name = #{name},
+			nickname = #{nickname},
+			cellphoneNum = #{cellphoneNum},
+			email = #{email}
+			WHERE id = #{id}
+			""")
+	public void doModify(int id,String name, String nickname, String cellphoneNum, String email);
+	
 }

@@ -7,26 +7,30 @@
 	<%@ include file="../common/head.jsp" %>
    	<script>
    		function loginSubmit(e) {
+   			e.loginId.value = e.loginId.value.trim();
+   			e.name.value = e.name.value.trim();
+   			e.email.value = e.email.value.trim();
+   			e.cellphoneNum.value = e.cellphoneNum.value.trim();
    			
-   			if(e.loginId.value.trim().length == 0){
+   			if(e.loginId.value.length == 0){
    				alert('아이디를 입력해주세요');
    				e.loginId.focus();
    				return;
    			}
    			
-   			if(e.name.value.trim().length == 0){
+   			if(e.name.value.length == 0){
    				alert('이름을 입력해주세요');
    				e.name.focus();
    				return;
    			}
    			
-   			if(e.email.value.trim().length == 0){
+   			if(e.email.value.length == 0){
    				alert('이메일을 입력해주세요');
    				e.email.focus();
    				return;
    			}
 
-   			if(e.cellphoneNum.value.trim().length == 0){
+   			if(e.cellphoneNum.value.length == 0){
    				alert('전화번호를 입력해주세요');
    				e.cellphoneNum.focus();
    				return;

@@ -98,24 +98,12 @@
 	</section>
 	
 	<script>
-		/* 댓글 작성 */
-		const replyWriteSubmit = function(e) {
-			const body = e.body;
+		/* 댓글 작성 및 수정 */
+		const replySubmit = function(e) {
 			
-			if(body.value.trim().length == 0){
+			if(e.body.value.length.trim() == 0){
 				alert('내용을 입력해주세요');
-				body.focus();
-			}
-			
-			e.submit();
-		}
-		/* 댓글 수정 */
-		const replyModifySubmit = function(e) {
-			const body = e.body;
-			
-			if(body.value.trim().length == 0){
-				alert('내용을 입력해주세요');
-				body.focus();
+				e.body.focus();
 			}
 			
 			e.submit();
@@ -151,7 +139,7 @@
 				<h2 class="text-2xl py-4">댓글</h2>
 				<!-- 댓글 입력창 -->
 				<c:if test="${rq.getLoginedMemberId() != 0 }">
-					<form action="/usr/reply/doWrite" onsubmit="replyWriteSubmit(this); return false;">
+					<form action="/usr/reply/doWrite" onsubmit="replySubmit(this); return false;">
 						<input name="relId" value="${article.id }" type="hidden" />
 						<input name="relTypeCode" value="article" type="hidden" />
 						<div class="font-semibold ml-2 mb-2">${loginedMember.getNickname()}</div>
@@ -193,7 +181,7 @@
 						<c:if test="${reply.memberId == rq.getLoginedMemberId() }">
 							<div id="modifyReplyForm${reply.id }" class="modifyReplyForm hidden mt-4" >
 								<div class="w-[50px]"></div>
-								<form action="/usr/reply/doModify" onsubmit="replyModifySubmit(this); return false;" class="grow">
+								<form action="/usr/reply/doModify" onsubmit="replySubmit(this); return false;" class="grow">
 									<input name="id" value="${reply.id }" type="hidden" />
 									<div class="font-semibold ml-2 mb-2">${loginedMember.getNickname()}</div>
 									<textarea name="body" class="textarea textarea-bordered w-full" placeholder="댓글을 입력해주세요">${reply.body }</textarea>

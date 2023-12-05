@@ -7,14 +7,16 @@
 	<%@ include file="../common/head.jsp" %>
    	<script>
    		function loginSubmit(e) {
+   			e.loginId.value = e.loginId.value.trim();
+   			e.loginPw.value = e.loginPw.value.trim();
    			
-   			if(e.loginId.value.trim().length == 0){
+   			if(e.loginId.value.length == 0){
    				alert('아이디를 입력해주세요');
    				e.loginId.focus();
    				return;
    			}
 
-   			if(e.loginPw.value.trim().length == 0){
+   			if(e.loginPw.value.length == 0){
    				alert('비밀번호를 입력해주세요');
    				e.loginPw.focus();
    				return;

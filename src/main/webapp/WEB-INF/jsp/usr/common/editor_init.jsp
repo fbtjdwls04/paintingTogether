@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 
 <script>
-	function writeSubmit(e) {
+	function submitForm(e) {
 		
 			if(e.title.value.trim().length == 0){
 				alert('제목을 입력해주세요');

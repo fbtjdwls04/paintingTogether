@@ -28,7 +28,7 @@
 	
 	<section class="container mx-auto flex justify-center">
 		<form action="doModify"
-			onsubmit="modifySubmit(this); return false;" method="post">
+			onsubmit="submitForm(this); return false;" method="post">
 			<input name="id" type="hidden" value="${article.id }" />
 			<input name="body" type="hidden" />
 			<table class="table">

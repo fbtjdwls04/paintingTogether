@@ -51,7 +51,7 @@ public interface ArticleDao {
 				 		)
 			 		</if>
 			 		<if test='searchType == "writerName"'>
-				 		AND m.name LIKE CONCAT('%',#{searchMsg},'%')
+				 		AND m.nickname LIKE CONCAT('%',#{searchMsg},'%')
 			 		</if>
 				GROUP BY a.id
 				ORDER BY a.id DESC
@@ -80,7 +80,7 @@ public interface ArticleDao {
 			 		)
 		 		</if>
 			 	<if test='searchType == "writerName"'>
-			 		AND m.name LIKE CONCAT('%',#{searchMsg},'%')
+			 		AND m.nickname LIKE CONCAT('%',#{searchMsg},'%')
 		 		</if>
 			</script>
 		""")
