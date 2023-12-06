@@ -145,23 +145,13 @@ public class UsrHomeMemberController {
 	
 	@RequestMapping("/usr/member/doPwModify")
 	@ResponseBody
-	public String doPwModify(String loginPw, String modifyPw, String modifyPwChk) {
+	public String doPwModify(String modifyPw, String modifyPwChk) {
 		
-		if(Util.empty(loginPw)) {
-			return Util.jsHistoryBack("현재 비밀번호를 입력해주세요");
-		}
 		if(Util.empty(modifyPw)) {
 			return Util.jsHistoryBack("새로운 비밀번호를 입력해주세요");
 		}
 		if(Util.empty(modifyPwChk)) {
 			return Util.jsHistoryBack("비밀번호 확인을 입력해주세요");
-		}
-		
-		Member member = memberService.getMemberById(rq.getLoginedMemberId());
-		
-		
-		if(member.getLoginPw().equals(Util.sha256(loginPw)) == false) {
-			return Util.jsHistoryBack("비밀번호를 확인해주세요");
 		}
 		
 		if(modifyPw.equals(modifyPwChk) == false) {

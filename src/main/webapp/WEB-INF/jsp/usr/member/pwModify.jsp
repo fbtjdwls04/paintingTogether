@@ -8,15 +8,9 @@
    	
    	<script>
    		function doPwModify(e) {
-   			e.loginPw.value = e.loginPw.value.trim();
    			e.modifyPw.value = e.modifyPw.value.trim();
    			e.modifyPwChk.value = e.modifyPwChk.value.trim();
    			
-   			if(e.loginPw.value.length == 0){
-   				alert('현재 비밀번호를 입력해주세요');
-   				e.loginPw.focus();
-   				return;
-   			}
    			if(e.modifyPw.value.length == 0){
    				alert('새로운 비밀번호를 입력해주세요');
    				e.modifyPw.focus();
@@ -40,10 +34,6 @@
 	<section class="flex flex-col items-center">
 		<form action="doPwModify" onsubmit="doPwModify(this); return false;" method="post">
 			<table class="table text-center border">
-				<tr>
-					<th>현재 비밀번호</th>
-					<td><input type="password" name="loginPw" class="input input-bordered"/></td>
-				</tr>
 				<tr>
 					<th>새로운 비밀번호</th>
 					<td><input type="password" name="modifyPw" class="input input-bordered"/></td>
