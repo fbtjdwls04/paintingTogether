@@ -1,37 +1,23 @@
 package com.koreaIT.paintingTogether.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistration;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
-
-import com.koreaIT.paintingTogether.handler.ChatWebSocketHandler;
-import com.koreaIT.paintingTogether.handler.ConnectedUsersWebSocketHandler;
-import com.koreaIT.paintingTogether.handler.PaintingWebSocketHandler;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-@EnableWebSocket
-public class MyWebSocketConfigurer implements WebSocketConfigurer {
-	
-	private ChatWebSocketHandler chatWebSocketHandler;
-	private ConnectedUsersWebSocketHandler connectedUsersWebSocketHandler;
-	private PaintingWebSocketHandler paintingWebSocketHandler;
-	
-	public MyWebSocketConfigurer(ChatWebSocketHandler chatWebSocketHandler, ConnectedUsersWebSocketHandler connectedUsersWebSocketHandler, PaintingWebSocketHandler paintingWebSocketHandler) {
-		this.chatWebSocketHandler = chatWebSocketHandler;
-		this.connectedUsersWebSocketHandler = connectedUsersWebSocketHandler;
-		this.paintingWebSocketHandler = paintingWebSocketHandler;
-	}
+@EnableWebSocketMessageBroker
+public class MyWebSocketConfigurer implements WebSocketMessageBrokerConfigurer   {
 	
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    	WebSocketHandlerRegistration ws;
-    	ws = registry.addHandler(chatWebSocketHandler, "/chat");
-    	ws.addHandler(connectedUsersWebSocketHandler, "/connectedUsers");
-    	ws.addHandler(paintingWebSocketHandler, "/painting");
-    	ws.setAllowedOrigins("*");
-    	ws.addInterceptors(new HttpSessionHandshakeInterceptor());
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/ws"); // 메시지 브로커를 설정 ("/topic"은 예시일 뿐, 사용자 정의 가능)
+        config.setApplicationDestinationPrefixes("/app");
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/websocket-endpoint").withSockJS();
     }
 }

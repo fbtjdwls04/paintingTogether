@@ -8,36 +8,35 @@
    	<script>
 	   	$(function(){
 	   		/* 채팅 ws */
-			const ws = new WebSocket("ws://localhost:8081/chat");
-			   
+			var socket = new SockJS('/websocket-endpoint');
+		    var stompClient = Stomp.over(socket);
+			console.log(stompClient)
+		    stompClient.connect({}, function (frame) {
+		        stompClient.subscribe('/ws/messages', function (message) {
+		        	const getMessage = JSON.parse(message.body);
+		        	
+		        	if(getMessage.sender == "${nickname}"){
+			            $("#chatBox").append("<p class='text-[green]'>"+ getMessage.sender + " : " + getMessage.content + "</p>");
+		        	}else{
+		        		$("#chatBox").append("<p>"+ getMessage.sender + " : " + getMessage.content + "</p>");
+		        	}
+		        });
+		    });
+		    
 			$("#chatInput").on("keydown", function(e){
 				if(e.keyCode == 13){
-					let text = $("#chatInput").val(); 
-					let line = $("<div>");
-					line.append(text); 
-					
-					$("#chatInput").val(""); 
-					ws.send(text);
-					
+			        var content = $("#chatInput").val();
+			        var sender = "${nickname}"; // You can customize the sender logic
+			        var message = {'content': content, 'sender': sender};
+			        
+			        stompClient.send("/app/chat", {}, JSON.stringify(message));
+			        
+					$("#chatInput").val("");
 					return false; 
 				}
 			});
 			
-			ws.onmessage  = function(e){
-				let line = $("<div>");
-				line.append(e.data);
-				$("#chatBox").append(line);
-			}
-			/* 유저수 ws */
-			const ws_UserCnt = new WebSocket("ws://localhost:8081/connectedUsers");
-			
-			ws_UserCnt.onmessage  = function(e){
-				let line = $("<div>");
-				line.append(e.data);
-				$("#userCnt").html(line);
-			}
 			/* 그림판 ws */
-			const ws_painting = new WebSocket('ws://localhost:8081/painting');
 			
             const canvas = document.getElementById('canvas');
             const canvasContainer = document.getElementById('canvasContainer');
@@ -58,7 +57,6 @@
             function endPosition() {
                 painting = false;
                 ctx.beginPath();
-                ws_painting.send(canvas.toDataURL());
             }
 
             function draw(e) {
@@ -73,14 +71,6 @@
             canvas.addEventListener('mousedown', startPosition);
             document.addEventListener('mouseup', endPosition);
             canvas.addEventListener('mousemove', draw);
-
-            ws_painting.onmessage = function(e){
-	            const drawing = new Image();
-	            drawing.onload = function () {
-	                ctx.drawImage(drawing, 0, 0);
-	            };
-	            drawing.src = e.data;
-	        };
 	        
 	        /* 선 굵기 */
 			const lineWidthPicker = document.getElementById('lineWidthPicker');
@@ -156,5 +146,8 @@
 		</div>
    	</section>
 	
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 	<%@ include file="../common/foot.jsp" %>
 	
