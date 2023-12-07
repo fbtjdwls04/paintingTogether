@@ -7,12 +7,20 @@
    	<%@ include file="../common/head.jsp" %>
    	<script>
 	   	$(function(){
-	   		/* 채팅 ws */
-			var socket = new SockJS('/websocket-endpoint');
-		    var stompClient = Stomp.over(socket);
-			console.log(stompClient)
+	   		
+	   		const canvas = document.getElementById('canvas');
+            const canvasContainer = document.getElementById('canvasContainer');
+            canvas.width = canvasContainer.offsetWidth;
+            canvas.height = canvasContainer.offsetHeight;
+            const ctx = canvas.getContext('2d');
+            
+            /* 웹소켓 연결 */
+            
+			const socket = new SockJS('/websocket-endpoint');
+			const stompClient = Stomp.over(socket);
+			
 		    stompClient.connect({}, function (frame) {
-		        stompClient.subscribe('/ws/messages', function (message) {
+		        stompClient.subscribe('/ws/chat', function (message) {
 		        	const getMessage = JSON.parse(message.body);
 		        	
 		        	if(getMessage.sender == "${nickname}"){
@@ -21,13 +29,26 @@
 		        		$("#chatBox").append("<p>"+ getMessage.sender + " : " + getMessage.content + "</p>");
 		        	}
 		        });
+		        
+		        stompClient.subscribe('/ws/canvas', function (message) {
+		        	const getUrl = JSON.parse(message.body);
+		        	
+		        	const img = new Image();
+					img.onload = function () {
+						ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+					};		        	
+					img.src = getUrl.url;
+		        });
 		    });
+            
+		    stompClient.reconnect_delay = 1000;
+	   		/* 채팅 ws */
 		    
 			$("#chatInput").on("keydown", function(e){
 				if(e.keyCode == 13){
-			        var content = $("#chatInput").val();
-			        var sender = "${nickname}"; // You can customize the sender logic
-			        var message = {'content': content, 'sender': sender};
+					const content = $("#chatInput").val();
+					const sender = "${nickname}"; // You can customize the sender logic
+					const message = {'content': content, 'sender': sender};
 			        
 			        stompClient.send("/app/chat", {}, JSON.stringify(message));
 			        
@@ -38,12 +59,6 @@
 			
 			/* 그림판 ws */
 			
-            const canvas = document.getElementById('canvas');
-            const canvasContainer = document.getElementById('canvasContainer');
-            canvas.width = canvasContainer.offsetWidth;
-            canvas.height = canvasContainer.offsetHeight;
-            
-            const ctx = canvas.getContext('2d');
             ctx.lineWidth = 5;
             ctx.lineCap = 'round';
             
@@ -57,6 +72,8 @@
             function endPosition() {
                 painting = false;
                 ctx.beginPath();
+                const dataUrl = canvas.toDataURL(); 
+                stompClient.send("/app/canvas",{}, JSON.stringify({'url' : dataUrl}));
             }
 
             function draw(e) {
@@ -84,6 +101,7 @@
 	        /* 팔레트 */
 	        const colorBtn = $('.colorBtn');
 	        const colorList = ['white','black','gray','red','orange','gold','green','blue','skyblue','purple']
+	        colorBtn.css("margin-left","10px");
 	        
 	        for(let i = 0; i < colorBtn.length; i++){
 	        	colorBtn[i].addEventListener('click',()=>{
@@ -107,12 +125,12 @@
 		<div class="container h-[700px] border-2 flex">
 			<div class="flex flex-col grow">
 				<!-- 팔레트 영역-->
-				<div class="h-[50px] border flex justify-around items-center">
-					<div class="flex">
+				<div class="h-[50px] border flex items-center">
+					<div class="flex mx-4">
 						<span id="lineWidthValue" class="w-[120px]">선 굵기 : 5px</span>
 						<input id="lineWidthPicker" type="range" min="1" max="100" value="5" class="range w-[200px] ml-4" step="1" />
 					</div>
-					<div class="flex items-center justify-around">
+					<div class="flex items-center justify-around ml-4">
 						<button class="colorBtn btn-sm btn-circle"><i class="fa-solid fa-eraser text-[20px]"></i></button>
 						<button class="colorBtn btn-sm btn-circle bg-black"></button>
 						<button class="colorBtn btn-sm btn-circle bg-[gray]"></button>
@@ -124,8 +142,10 @@
 						<button class="colorBtn btn-sm btn-circle bg-[skyblue]"></button>
 						<button class="colorBtn btn-sm btn-circle bg-[purple]"></button>
 					</div>
-					
-					<input id="colorPicker" type="color" />
+					<div class="flex ml-10">
+						<span>사용자 색 정의 &nbsp;</span>
+						<input id="colorPicker" type="color" />
+					</div>
 				</div>
 				<!-- 팔레트 끝 -->
 				<!-- 캔버스 영역 -->

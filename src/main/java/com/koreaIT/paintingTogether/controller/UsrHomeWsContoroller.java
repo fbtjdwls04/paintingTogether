@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.koreaIT.paintingTogether.service.MemberService;
+import com.koreaIT.paintingTogether.vo.Canvas;
 import com.koreaIT.paintingTogether.vo.ChatMessage;
 import com.koreaIT.paintingTogether.vo.Member;
 import com.koreaIT.paintingTogether.vo.Rq;
@@ -33,10 +34,17 @@ public class UsrHomeWsContoroller {
 	}
 	
 	@MessageMapping("/chat")
-    @SendTo("/ws/messages")
+    @SendTo("/ws/chat")
     public ChatMessage sendMessage(ChatMessage message) {
 		
         return message;
     }
+	
+	@MessageMapping("/canvas")
+	@SendTo("/ws/canvas")
+	public Canvas sendCanvas(Canvas url) {
+		System.out.println(url.getUrl());
+		return url;
+	}
 	
 }
