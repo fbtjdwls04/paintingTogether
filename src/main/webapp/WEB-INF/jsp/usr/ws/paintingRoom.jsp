@@ -79,24 +79,47 @@
             function draw(e) {
                 if (!painting) return;
 
-                ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+                ctx.lineTo(e.offsetX, e.offsetY);
                 ctx.stroke();
                 ctx.beginPath();
-                ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+                ctx.moveTo(e.offsetX, e.offsetY);
             }
             
             canvas.addEventListener('mousedown', startPosition);
             document.addEventListener('mouseup', endPosition);
             canvas.addEventListener('mousemove', draw);
-	        
-	        /* 선 굵기 */
+            
+            /* 붓 윤곽선이 마우스를 따라다님 */
+            const circle = $('#circle');
+            function chaser(e) {
+            	circle.css({"left" : e.offsetX + "px", "top" : e.offsetY + "px"});
+			}
+            
+            canvasContainer.addEventListener('mousemove', chaser);
+
+            /* 선 굵기 */
 			const lineWidthPicker = document.getElementById('lineWidthPicker');
 			const lineWidthValue = document.getElementById('lineWidthValue');
 			
 	        lineWidthPicker.addEventListener("change",(e)=>{
-	        	ctx.lineWidth = e.target.value;
-	        	lineWidthValue.replaceChildren("선 굵기 : " + ctx.lineWidth + "px"); 
+	        	changeLineWidth();
 	        })
+	        
+	        canvasContainer.addEventListener('wheel', (e)=>{
+            	if (e.deltaY > 0) {
+            		lineWidthPicker.value--;
+            		changeLineWidth();
+            	  } else {
+            		lineWidthPicker.value++;
+            		changeLineWidth();
+            	  }
+            });
+	        
+	        function changeLineWidth() {
+	        	ctx.lineWidth = lineWidthPicker.value;
+	        	circle.css({"width" : ctx.lineWidth + "px", "height" : ctx.lineWidth + "px"});  // 붓 굵기 윤곽선
+	        	lineWidthValue.replaceChildren("선 굵기 : " + ctx.lineWidth + "px");
+	        }
 	        
 	        /* 팔레트 */
 	        const colorBtn = $('.colorBtn');
@@ -149,7 +172,8 @@
 				</div>
 				<!-- 팔레트 끝 -->
 				<!-- 캔버스 영역 -->
-				<div id="canvasContainer" class="grow">
+				<div id="canvasContainer" class="grow overflow-hidden relative">
+					<div id="circle" class="absolute border border-gray-400 rounded-full translate-x-[-49%] translate-y-[-49%] pointer-events-none"></div>
 					<canvas id="canvas" class="border"></canvas>
 				</div>
 				<!-- 캔버스 영역 끝 -->
