@@ -13,7 +13,7 @@ public class MyWebSocketConfigurer implements WebSocketMessageBrokerConfigurer  
 	
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/ws"); // 메시지 브로커를 설정 ("/topic"은 예시일 뿐, 사용자 정의 가능)
+        config.enableSimpleBroker("/ws");
         config.setApplicationDestinationPrefixes("/app");
     }
 
@@ -22,9 +22,10 @@ public class MyWebSocketConfigurer implements WebSocketMessageBrokerConfigurer  
         registry.addEndpoint("/websocket-endpoint").withSockJS();
     }
     
+    @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
-        registration.setMessageSizeLimit(500 * 1024);
+        registration.setMessageSizeLimit(1024 * 1024);
         registration.setSendBufferSizeLimit(1024 * 1024);
-        registration.setSendTimeLimit(20000);
+        registration.setSendTimeLimit(50000);
     }
 }

@@ -8,47 +8,12 @@
    	<script>
 	   	$(function(){
 	   		
-	   		const canvas = document.getElementById('canvas');
-            const canvasContainer = document.getElementById('canvasContainer');
-            canvas.width = canvasContainer.offsetWidth;
-            canvas.height = canvasContainer.offsetHeight;
-            const ctx = canvas.getContext('2d');
-            
-            /* 웹소켓 연결 */
-            
-			const socket = new SockJS('/websocket-endpoint');
-			const stompClient = Stomp.over(socket);
-			
-		    stompClient.connect({}, function (frame) {
-		        stompClient.subscribe('/ws/chat', function (message) {
-		        	const getMessage = JSON.parse(message.body);
-		        	
-		        	if(getMessage.sender == "${nickname}"){
-			            $("#chatBox").append("<p class='text-[green]'>"+ getMessage.sender + " : " + getMessage.content + "</p>");
-		        	}else{
-		        		$("#chatBox").append("<p>"+ getMessage.sender + " : " + getMessage.content + "</p>");
-		        	}
-		        });
-		        
-		        stompClient.subscribe('/ws/canvas', function (message) {
-		        	const getUrl = JSON.parse(message.body);
-		        	
-		        	const img = new Image();
-					img.onload = function () {
-						ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-					};		        	
-					img.src = getUrl.url;
-		        });
-		    });
-            
-		    stompClient.reconnect_delay = 1000;
-	   		/* 채팅 ws */
-		    
+	   		/* 채팅 */
 			$("#chatInput").on("keydown", function(e){
 				if(e.keyCode == 13){
-					const content = $("#chatInput").val();
-					const sender = "${nickname}"; // You can customize the sender logic
-					const message = {'content': content, 'sender': sender};
+					const sender = `${nickname}`; 
+					const content = " : " + $("#chatInput").val();
+					const message = {'sender': sender, 'content': content};
 			        
 			        stompClient.send("/app/chat", {}, JSON.stringify(message));
 			        
@@ -56,11 +21,20 @@
 					return false; 
 				}
 			});
-			
-			/* 그림판 ws */
-			
+	   		
+			/* 그림판 */
+	   		const canvas = document.getElementById('canvas');
+            const canvasContainer = document.getElementById('canvasContainer');
+            canvas.width = canvasContainer.offsetWidth;
+            canvas.height = canvasContainer.offsetHeight;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.lineWidth = 5;
             ctx.lineCap = 'round';
+            
+            const undoStack = [];
             
             let painting = false;
 
@@ -72,8 +46,9 @@
             function endPosition() {
                 painting = false;
                 ctx.beginPath();
+                
                 const dataUrl = canvas.toDataURL(); 
-                stompClient.send("/app/canvas",{}, JSON.stringify({'url' : dataUrl}));
+                stompClient.send("/app/canvas",{}, dataUrl);
             }
 
             function draw(e) {
@@ -105,6 +80,7 @@
 	        	changeLineWidth();
 	        })
 	        
+	        /* 휠 이벤트로 선 굵기 조절 */
 	        canvasContainer.addEventListener('wheel', (e)=>{
             	if (e.deltaY > 0) {
             		lineWidthPicker.value--;
@@ -122,14 +98,14 @@
 	        }
 	        
 	        /* 팔레트 */
-	        const colorBtn = $('.colorBtn');
+	        const colorSelectBtn = $('.colorSelectBtn');
 	        const colorList = ['white','black','gray','red','orange','gold','green','blue','skyblue','purple']
-	        colorBtn.css("margin-left","10px");
+	        colorSelectBtn.css("margin-left","10px");
 	        
-	        for(let i = 0; i < colorBtn.length; i++){
-	        	colorBtn[i].addEventListener('click',()=>{
-	        		colorBtn.css('border',"");
-	        		colorBtn[i].style.border = "3px solid darkgray";
+	        for(let i = 0; i < colorSelectBtn.length; i++){
+	        	colorSelectBtn[i].addEventListener('click',()=>{
+	        		colorSelectBtn.css('border',"");
+	        		colorSelectBtn[i].style.border = "3px solid darkgray";
         			ctx.strokeStyle = colorList[i];
 	        	})
 	        }
@@ -138,8 +114,61 @@
 	        const colorPicker = document.getElementById('colorPicker');
 	        colorPicker.addEventListener("change",(e)=> {
 				ctx.strokeStyle = e.target.value;
-				colorBtn.css('border',"");
+				colorSelectBtn.css('border',"");
 			})
+			
+			const downloadCanvasImage = document.getElementById('downloadCanvasImage');
+			downloadCanvasImage.addEventListener('click', function() {
+				let a = document.createElement('a');
+				a.href = canvas.toDataURL(); 
+                a.download = 'canvas_image.png'; // 다운로드될 파일 이름
+                a.click();
+			})
+
+            /* 웹소켓 연결 */
+            /* 채팅 */
+            /* 그림판 */
+			const socket = new SockJS('/websocket-endpoint');
+			const stompClient = Stomp.over(socket);
+			
+		    stompClient.connect({}, function (frame) {
+		    	
+		    	// 채팅 구독
+		        stompClient.subscribe('/ws/chat', function (message) {
+		        	const getMessage = JSON.parse(message.body);
+		        	
+		        	if(getMessage.sender == `${nickname}`){
+			            $("#chatBox").append("<p class='text-[green]'>"+ getMessage.sender + getMessage.content + "</p>");
+		        	}else{
+		        		$("#chatBox").append("<p>"+ getMessage.sender + getMessage.content + "</p>");
+		        	}
+		        });
+		        
+		    	// 그림판 구독
+		        stompClient.subscribe('/ws/canvas', function (message) {
+		        	const getUrl = message.body;
+		        	
+		        	const img = new Image();
+					img.onload = function () {
+						ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+					};		        	
+					img.src = getUrl;
+		        });
+		    	
+		    	stompClient.send("/app/chat", {}, JSON.stringify({
+		    		'sender' : `${nickname}`, 
+		    		'content' : "님이 입장하셨습니다"
+		    		})
+		    	);
+		    });
+		    
+		    const getImg = new Image();
+		    getImg.onload = function () {
+				ctx.drawImage(getImg, 0, 0, canvas.width, canvas.height);
+			};		        	
+			getImg.src = `${saveCanvasUrl}`;
+		    
+		    stompClient.reconnect_delay = 1000;
 	   	});
 	   	
 	   	
@@ -154,20 +183,24 @@
 						<input id="lineWidthPicker" type="range" min="1" max="100" value="5" class="range w-[200px] ml-4" step="1" />
 					</div>
 					<div class="flex items-center justify-around ml-4">
-						<button class="colorBtn btn-sm btn-circle"><i class="fa-solid fa-eraser text-[20px]"></i></button>
-						<button class="colorBtn btn-sm btn-circle bg-black"></button>
-						<button class="colorBtn btn-sm btn-circle bg-[gray]"></button>
-						<button class="colorBtn btn-sm btn-circle bg-[red]"></button>
-						<button class="colorBtn btn-sm btn-circle bg-[orange]"></button>
-						<button class="colorBtn btn-sm btn-circle bg-[gold]"></button>
-						<button class="colorBtn btn-sm btn-circle bg-[green]"></button>
-						<button class="colorBtn btn-sm btn-circle bg-[blue]"></button>
-						<button class="colorBtn btn-sm btn-circle bg-[skyblue]"></button>
-						<button class="colorBtn btn-sm btn-circle bg-[purple]"></button>
+						<button class="colorSelectBtn btn-sm btn-circle flex items-center"><i class="fa-solid fa-eraser text-[20px]"></i></button>
+						<button class="colorSelectBtn btn-sm btn-circle bg-black"></button>
+						<button class="colorSelectBtn btn-sm btn-circle bg-[gray]"></button>
+						<button class="colorSelectBtn btn-sm btn-circle bg-[red]"></button>
+						<button class="colorSelectBtn btn-sm btn-circle bg-[orange]"></button>
+						<button class="colorSelectBtn btn-sm btn-circle bg-[gold]"></button>
+						<button class="colorSelectBtn btn-sm btn-circle bg-[green]"></button>
+						<button class="colorSelectBtn btn-sm btn-circle bg-[blue]"></button>
+						<button class="colorSelectBtn btn-sm btn-circle bg-[skyblue]"></button>
+						<button class="colorSelectBtn btn-sm btn-circle bg-[purple]"></button>
 					</div>
-					<div class="flex ml-10">
+					<div class="flex ml-10 items-center">
 						<span>사용자 색 정의 &nbsp;</span>
 						<input id="colorPicker" type="color" />
+					</div>
+					
+					<div class="ml-20 hover:bg-gray-200">
+						<button id="downloadCanvasImage"><i class="fa-solid fa-download text-[20px] p-2"></i></button>
 					</div>
 				</div>
 				<!-- 팔레트 끝 -->
@@ -184,7 +217,7 @@
 				<div class="h-[50px] border flex justify-center items-center">
 					<span id="userCnt"></span>
 				</div>
-				<div id="chatBox" class="h-full p-2 overflow-y-auto"></div>
+				<div id="chatBox" class="h-full p-2 overflow-y-auto border"></div>
 				<input id="chatInput" type="text" class="input input-bordered w-full" />
 			</div>
 		</div>

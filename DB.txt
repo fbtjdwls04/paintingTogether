@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS `PT_AM`;
-CREATE DATABASE `PT_AM`;
-USE `PT_AM`;
+DROP DATABASE IF EXISTS `SB_AM`;
+CREATE DATABASE `SB_AM`;
+USE `SB_AM`;
 
 SHOW TABLES;
 
@@ -56,6 +56,15 @@ CREATE TABLE reply(
     relId INT UNSIGNED NOT NULL,
     `body` TEXT NOT NULL
 );
+
+CREATE TABLE canvas(
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    regDate DATETIME NOT NULL,
+    updateDate DATETIME NOT NULL,
+    canvasUrl TEXT NOT NULL
+);
+
+
 
 TRUNCATE article;
 
@@ -131,12 +140,6 @@ SET `code` = 'free',
 regDate = NOW(),
 updateDate = NOW();
 
-INSERT INTO board
-SET `code` = 'picture',
-`name` = '그림',
-regDate = NOW(),
-updateDate = NOW();
-
 INSERT INTO recommendPoint
 SET memberId = 2,
 relTypeCode = 'article',
@@ -161,6 +164,10 @@ relTypeCode = 'article',
 relId = 3,
 `point` = 1;
 
+INSERT INTO canvas
+SET regDate = NOW(),
+updateDate = NOW(),
+canvasUrl = "";
 
 SELECT * 
 FROM article
@@ -169,6 +176,7 @@ SELECT * FROM `member`;
 SELECT * FROM board;
 SELECT * FROM recommendPoint;
 SELECT * FROM reply;
+SELECT * FROM canvas;
 
 SELECT * 
 FROM article AS a 

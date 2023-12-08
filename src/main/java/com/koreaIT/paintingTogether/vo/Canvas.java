@@ -8,5 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Canvas {
-	private String url;
+	private int id;
+	private String regDate;
+	private String updateDate;
+	private String canvasUrl;
+	
 }
