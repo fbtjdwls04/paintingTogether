@@ -43,14 +43,6 @@
                 draw(e);
             }
 
-            function endPosition() {
-                painting = false;
-                ctx.beginPath();
-                
-                const dataUrl = canvas.toDataURL(); 
-                stompClient.send("/app/canvas",{}, dataUrl);
-            }
-
             function draw(e) {
                 if (!painting) return;
 
@@ -59,6 +51,15 @@
                 ctx.beginPath();
                 ctx.moveTo(e.offsetX, e.offsetY);
             }
+            
+            function endPosition() {
+                painting = false;
+                ctx.beginPath();
+                
+                const dataUrl = canvas.toDataURL(); 
+                stompClient.send("/app/canvas",{}, dataUrl);
+            }
+
             
             canvas.addEventListener('mousedown', startPosition);
             document.addEventListener('mouseup', endPosition);
@@ -117,6 +118,7 @@
 				colorSelectBtn.css('border',"");
 			})
 			
+			/* 그림 다운로드 */
 			const downloadCanvasImage = document.getElementById('downloadCanvasImage');
 			downloadCanvasImage.addEventListener('click', function() {
 				let a = document.createElement('a');
@@ -147,12 +149,7 @@
 		    	// 그림판 구독
 		        stompClient.subscribe('/ws/canvas', function (message) {
 		        	const getUrl = message.body;
-		        	
-		        	const img = new Image();
-					img.onload = function () {
-						ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-					};		        	
-					img.src = getUrl;
+		        	printCanvasImg(getUrl);
 		        });
 		    	
 		    	stompClient.send("/app/chat", {}, JSON.stringify({
@@ -162,13 +159,26 @@
 		    	);
 		    });
 		    
-		    const getImg = new Image();
-		    getImg.onload = function () {
-				ctx.drawImage(getImg, 0, 0, canvas.width, canvas.height);
-			};		        	
-			getImg.src = `${saveCanvasUrl}`;
+			printCanvasImg(`${saveCanvasUrl}`);
+			
+			function printCanvasImg(url) {
+				const img = new Image();
+				img.onload = function () {
+					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+				};		        	
+				img.src = url;
+			}
 		    
 		    stompClient.reconnect_delay = 1000;
+		    
+		    //퇴장 시
+		    window.onbeforeunload = function(){
+		    	stompClient.send("/app/chat", {}, JSON.stringify({
+		    		'sender' : `${nickname}`, 
+		    		'content' : "님이 퇴장하셨습니다"
+		    		})
+		    	);
+		    }
 	   	});
 	   	
 	   	
