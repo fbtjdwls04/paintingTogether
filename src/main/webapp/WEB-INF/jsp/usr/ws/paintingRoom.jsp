@@ -10,16 +10,11 @@
 	   		/* 웹소켓 연결 */
             /* 채팅 */
             /* 그림판 */
-            
-	   		const stompClient = new StompJs.Client({
-				brokerURL : 'ws://localhost:8081/websocket-endpoint',
-				reconnectDelay: 5000,
-				maxWebSocketChunkSize : 2000000,
-				connectionTimeout: 1000
-			});
-			
-		    stompClient.onConnect = (frame) => {
-		    	console.log("웹소켓 연결 완료");
+			const socket = new SockJS('/websocket-endpoint');
+			const stompClient = Stomp.over(socket);
+			stompClient.reconnect_delay = 1000;
+		    stompClient.connect({}, function (frame) {
+		    	
 		    	// 채팅 구독
 		        stompClient.subscribe('/ws/chat', function (message) {
 		        	const getMessage = JSON.parse(message.body);
@@ -37,57 +32,36 @@
 		        	printCanvasImg(getUrl);
 		        });
 		    	
-		    	/* 입장 시 입장멘트 */
-		    	sendChat("님이 입장하셨습니다");
+		        sendChat("님이 입장하셨습니다");
 		    	
-		    	/* 입장 시 저장된 그림 뿌림 */
-			    if(`${saveCanvasUrl}` != null){
-					printCanvasImg(`${saveCanvasUrl}`);
-			    }
-		    };
+		    	printCanvasImg(`${saveCanvasUrl}`);
+		    });
 		    
-		    stompClient.onWebSocketClose = () =>{
-		    	console.log("연결 끊어짐")
-		    	console.log(stompClient)
-		    }
-		    
-		    stompClient.activate();
-		    
-		    stompClient.onWebSocketError = (error) => {
-		        console.error('Error with websocket', error);
-		    };
-
-		    stompClient.onStompError = (frame) => {
-		        console.error('Broker reported error: ' + frame.headers['message']);
-		        console.error('Additional details: ' + frame.body);
-		    };
 	   		/* 채팅 */
-	   		function sendChat(content) {
-	   			stompClient.publish({
-		    		destination : "/app/chat",
-		    		body : JSON.stringify({
-			    		'sender' : `${nickname}`, 
-			    		'content' : content
-			    	}) 
-		    	});
-			};
-	   		
 			$("#chatInput").on("keydown", function(e){
 				if(e.keyCode == 13){
 					const content = " : " + $("#chatInput").val();
-					
-					sendChat(content)
-					
+			        
+					sendChat(content);
+			        
 					$("#chatInput").val("");
 					return false; 
 				}
 			});
-
-		    //퇴장 시
+	   		
+	   		function sendChat(content) {
+	   			stompClient.send("/app/chat", {}, JSON.stringify({
+		    		'sender' : `${nickname}`, 
+		    		'content' : content
+		    		})
+		    	);
+			}
+	   		
+	   		//퇴장 시
 		    window.onbeforeunload = function(){
-		    	sendChat("님이 퇴장하셨습니다");
+		    	sendChat("님이 퇴장하셨습니다")
 		    }
-		    
+	   		
 			/* 그림판 */
 	   		const canvas = document.getElementById('canvas');
             const canvasContainer = document.getElementById('canvasContainer');
@@ -101,7 +75,15 @@
             ctx.lineCap = 'round';
             
             let painting = false;
-
+			
+            function printCanvasImg(url) {
+				const img = new Image();
+				img.onload = function () {
+					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+				};		        	
+				img.src = url;
+			}
+            
             function startPosition(e) {
                 painting = true;
                 draw(e);
@@ -121,10 +103,7 @@
                 ctx.beginPath();
                 
                 const dataUrl = canvas.toDataURL(); 
-                stompClient.publish({
-                	destination: "/app/canvas",
-                	body : dataUrl
-                });
+                stompClient.send("/app/canvas",{}, dataUrl);
             }
 
             
@@ -193,16 +172,7 @@
                 a.download = 'canvas_image.png'; // 다운로드될 파일 이름
                 a.click();
 			})
-			
-			/* canvas 이미지 뿌리기 */
-			function printCanvasImg(url) {
-				const img = new Image();
-				img.onload = function () {
-					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-				};		        	
-				img.src = url;
-			}
-		    
+
 	   	});
 	   	
 	   	
@@ -257,6 +227,8 @@
 		</div>
    	</section>
 	
-    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 	<%@ include file="../common/foot.jsp" %>
 	
