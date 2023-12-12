@@ -11,5 +11,5 @@ public class Brush {
 	private int x;
 	private int y;
 	private int lineWidth;
-	private String fillStyle;
+	private String strokeStyle;
 }

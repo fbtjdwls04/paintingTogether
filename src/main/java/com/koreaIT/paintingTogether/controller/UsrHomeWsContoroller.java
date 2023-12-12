@@ -2,11 +2,9 @@ package com.koreaIT.paintingTogether.controller;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.koreaIT.paintingTogether.service.CanvasService;
 import com.koreaIT.paintingTogether.service.MemberService;
@@ -36,7 +34,6 @@ public class UsrHomeWsContoroller {
 		model.addAttribute("nickname",loginedMember.getNickname());
 		model.addAttribute("saveCanvasUrl",canvasService.getCanvasUrl());
 		
-		System.out.println(canvasService.getCanvasUrl());
 		return "/usr/ws/paintingRoom";
 	}
 	

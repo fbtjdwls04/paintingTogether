@@ -7,21 +7,87 @@
    	<%@ include file="../common/head.jsp" %>
    	<script>
 	   	$(function(){
-	   		
+	   		/* 웹소켓 연결 */
+            /* 채팅 */
+            /* 그림판 */
+            
+	   		const stompClient = new StompJs.Client({
+				brokerURL : 'ws://localhost:8081/websocket-endpoint',
+				reconnectDelay: 5000,
+				maxWebSocketChunkSize : 2000000,
+				connectionTimeout: 1000
+			});
+			
+		    stompClient.onConnect = (frame) => {
+		    	console.log("웹소켓 연결 완료");
+		    	// 채팅 구독
+		        stompClient.subscribe('/ws/chat', function (message) {
+		        	const getMessage = JSON.parse(message.body);
+		        	
+		        	if(getMessage.sender == `${nickname}`){
+			            $("#chatBox").append("<p class='text-[green]'>"+ getMessage.sender + getMessage.content + "</p>");
+		        	}else{
+		        		$("#chatBox").append("<p>"+ getMessage.sender + getMessage.content + "</p>");
+		        	}
+		        });
+		        
+		    	// 그림판 구독
+		        stompClient.subscribe('/ws/canvas', function (message) {
+		        	const getUrl = message.body;
+		        	printCanvasImg(getUrl);
+		        });
+		    	
+		    	/* 입장 시 입장멘트 */
+		    	sendChat("님이 입장하셨습니다");
+		    	
+		    	/* 입장 시 저장된 그림 뿌림 */
+			    if(`${saveCanvasUrl}` != null){
+					printCanvasImg(`${saveCanvasUrl}`);
+			    }
+		    };
+		    
+		    stompClient.onWebSocketClose = () =>{
+		    	console.log("연결 끊어짐")
+		    	console.log(stompClient)
+		    }
+		    
+		    stompClient.activate();
+		    
+		    stompClient.onWebSocketError = (error) => {
+		        console.error('Error with websocket', error);
+		    };
+
+		    stompClient.onStompError = (frame) => {
+		        console.error('Broker reported error: ' + frame.headers['message']);
+		        console.error('Additional details: ' + frame.body);
+		    };
 	   		/* 채팅 */
+	   		function sendChat(content) {
+	   			stompClient.publish({
+		    		destination : "/app/chat",
+		    		body : JSON.stringify({
+			    		'sender' : `${nickname}`, 
+			    		'content' : content
+			    	}) 
+		    	});
+			};
+	   		
 			$("#chatInput").on("keydown", function(e){
 				if(e.keyCode == 13){
-					const sender = `${nickname}`; 
 					const content = " : " + $("#chatInput").val();
-					const message = {'sender': sender, 'content': content};
-			        
-			        stompClient.send("/app/chat", {}, JSON.stringify(message));
-			        
+					
+					sendChat(content)
+					
 					$("#chatInput").val("");
 					return false; 
 				}
 			});
-	   		
+
+		    //퇴장 시
+		    window.onbeforeunload = function(){
+		    	sendChat("님이 퇴장하셨습니다");
+		    }
+		    
 			/* 그림판 */
 	   		const canvas = document.getElementById('canvas');
             const canvasContainer = document.getElementById('canvasContainer');
@@ -33,8 +99,6 @@
             ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.lineWidth = 5;
             ctx.lineCap = 'round';
-            
-            const undoStack = [];
             
             let painting = false;
 
@@ -57,7 +121,10 @@
                 ctx.beginPath();
                 
                 const dataUrl = canvas.toDataURL(); 
-                stompClient.send("/app/canvas",{}, dataUrl);
+                stompClient.publish({
+                	destination: "/app/canvas",
+                	body : dataUrl
+                });
             }
 
             
@@ -126,41 +193,8 @@
                 a.download = 'canvas_image.png'; // 다운로드될 파일 이름
                 a.click();
 			})
-
-            /* 웹소켓 연결 */
-            /* 채팅 */
-            /* 그림판 */
-			const socket = new SockJS('/websocket-endpoint');
-			const stompClient = Stomp.over(socket);
 			
-		    stompClient.connect({}, function (frame) {
-		    	
-		    	// 채팅 구독
-		        stompClient.subscribe('/ws/chat', function (message) {
-		        	const getMessage = JSON.parse(message.body);
-		        	
-		        	if(getMessage.sender == `${nickname}`){
-			            $("#chatBox").append("<p class='text-[green]'>"+ getMessage.sender + getMessage.content + "</p>");
-		        	}else{
-		        		$("#chatBox").append("<p>"+ getMessage.sender + getMessage.content + "</p>");
-		        	}
-		        });
-		        
-		    	// 그림판 구독
-		        stompClient.subscribe('/ws/canvas', function (message) {
-		        	const getUrl = message.body;
-		        	printCanvasImg(getUrl);
-		        });
-		    	
-		    	stompClient.send("/app/chat", {}, JSON.stringify({
-		    		'sender' : `${nickname}`, 
-		    		'content' : "님이 입장하셨습니다"
-		    		})
-		    	);
-		    });
-		    
-			printCanvasImg(`${saveCanvasUrl}`);
-			
+			/* canvas 이미지 뿌리기 */
 			function printCanvasImg(url) {
 				const img = new Image();
 				img.onload = function () {
@@ -169,16 +203,6 @@
 				img.src = url;
 			}
 		    
-		    stompClient.reconnect_delay = 1000;
-		    
-		    //퇴장 시
-		    window.onbeforeunload = function(){
-		    	stompClient.send("/app/chat", {}, JSON.stringify({
-		    		'sender' : `${nickname}`, 
-		    		'content' : "님이 퇴장하셨습니다"
-		    		})
-		    	);
-		    }
 	   	});
 	   	
 	   	
@@ -233,8 +257,6 @@
 		</div>
    	</section>
 	
-	
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
 	<%@ include file="../common/foot.jsp" %>
 	
