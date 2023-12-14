@@ -1,10 +1,24 @@
 package com.koreaIT.paintingTogether.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.koreaIT.paintingTogether.service.MemberService;
+import com.koreaIT.paintingTogether.vo.Member;
+import com.koreaIT.paintingTogether.vo.Rq;
 
 @Controller
 public class UsrHomeController {
+	
+	private MemberService memberService;
+	private Rq rq;
+	
+	
+	public UsrHomeController(MemberService memberService, Rq rq) {
+		this.memberService = memberService;
+		this.rq = rq;
+	}
 	
 	@RequestMapping("/usr/home/main")
 	public String showMain() {

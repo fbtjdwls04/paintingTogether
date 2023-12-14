@@ -35,7 +35,14 @@
 			</c:if>
 			<c:if test="${rq.getLoginedMemberId() != 0}">
 				<li class="hover:underline"><a class="px-4" href="/usr/member/doLogout">logout</a></li>
-				<li class="hover:underline"><a class="px-4" href="/usr/member/myPage?id=${rq.getLoginedMemberId() }">myPage</a></li>
+				<c:choose>
+					<c:when test="${rq.getLoginedMemberId() == 1 }">
+						<li class="hover:underline"><a class="px-4" href="/adm/member/list">memberList</a></li>					
+					</c:when>
+					<c:otherwise>
+						<li class="hover:underline"><a class="px-4" href="/usr/member/myPage?id=${rq.getLoginedMemberId() }">myPage</a></li>
+					</c:otherwise>
+				</c:choose>
 			</c:if>
 		</ul>
 	</header>

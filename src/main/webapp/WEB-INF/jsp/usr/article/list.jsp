@@ -48,7 +48,7 @@
 	<c:if test="${articleCnt == 0}">
 		<p class="text-[16px] text-center mt-4">
 			게시물이 없습니다.
-		</p]>
+		</p>
 	</c:if>
 
 	<div class="flex justify-end">

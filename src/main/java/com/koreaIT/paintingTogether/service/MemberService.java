@@ -1,5 +1,7 @@
 package com.koreaIT.paintingTogether.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -69,5 +71,27 @@ public class MemberService {
 
 	public void doPasswordModify(int id, String tempPassword) {
 		memberDao.doPasswordModify(id, tempPassword);
+	}
+
+	public int getMemberCnt(String searchType, String searchMsg) {
+		return memberDao.getMemberCnt(searchType, searchMsg);
+	}
+
+	public List<Member> getMembers(int startLimit, int itemsInAPage, String searchType, String searchMsg) {
+		return memberDao.getMembers(startLimit,itemsInAPage,searchType,searchMsg);
+	}
+
+	public void deleteMembers(List<String> ids) {
+		for (String idStr : ids) {
+			Member member = getMemberById(Integer.parseInt(idStr));
+
+			if (member != null) {
+				deleteMember(member.getId());
+			}
+		}
+	}
+
+	private void deleteMember(int id) {
+		memberDao.deleteMember(id);
 	}
 }

@@ -81,7 +81,13 @@
 				</tr>
 				<tr>
 					<td id="viewer">
+						<br />
+						<br />
+						<br />
 						${article.body }
+						<br />
+						<br />
+						<br />
 					</td>
 				</tr>
 			</table>
@@ -112,17 +118,17 @@
 		const replyModify_getForm = function(id) {
 			/* 해당 댓글을 제외한 나머지는 댓글만 보이게 (수정 입력칸 여러개 안켜지게) */
 			$('.reply').css("display", "flex");
-			$('.modifyReplyForm').css("display", "none");
+			$('.modifyReplyForm').hide();
 			/*  */
 			
-			$('#reply' + id).css("display", "none");
+			$('#reply' + id).hide();
 			$('#modifyReplyForm' + id).css("display", "flex");
 		}
 		
 		/* 수정 입력칸 닫기 */
 		const replyModify_cancle = function(id) {
 			$('#reply' + id).css("display", "flex");
-			$('#modifyReplyForm' + id).css("display", "none");
+			$('#modifyReplyForm' + id).hide();
 		}
 		
 	</script>
@@ -154,9 +160,9 @@
 				</c:if>
 				
 				<!-- 댓글 리스트 -->
-				<div class="mt-8">
+				<div class="py-8">
 					<c:forEach var="reply" items="${replies }">
-						<div id="reply${reply.id }" class="reply flex mt-4">
+						<div id="reply${reply.id }" class="reply flex py-4">
 							<div class="w-[50px]"></div>
 							<div>
 								<div class="font-semibold">${reply.writerName }</div>
@@ -177,6 +183,7 @@
 							</c:if>
 							<!-- 수정, 삭제 버튼 끝-->
 						</div>
+						<hr />
 						<!-- 댓글 수정 Form, 수정버튼 누르기 전에는 display none -->
 						<c:if test="${reply.memberId == rq.getLoginedMemberId() }">
 							<div id="modifyReplyForm${reply.id }" class="modifyReplyForm hidden mt-4" >

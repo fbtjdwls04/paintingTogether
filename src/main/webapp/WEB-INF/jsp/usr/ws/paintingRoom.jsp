@@ -13,6 +13,7 @@
 			const socket = new SockJS('/websocket-endpoint');
 			const stompClient = Stomp.over(socket);
 			stompClient.reconnect_delay = 1000;
+			
 		    stompClient.connect({}, function (frame) {
 		    	
 		    	// 채팅 구독
