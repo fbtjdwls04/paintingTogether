@@ -14,11 +14,15 @@ public class CanvasService {
 		this.canvasDao = canvasDao;
 	}
 
-	public void doSaveCanvas(String canvasUrl) {
-		canvasDao.doSaveCanvas(canvasUrl);
+	public void doUpdateCanvas(String canvasUrl) {
+		canvasDao.doUpdateCanvas(canvasUrl);
 	}
 
 	public String getCanvasUrl() {
 		return canvasDao.getCanvasUrl();
+	}
+
+	public void doSaveCanvas(String url) {
+		canvasDao.doSaveCanvas(url);
 	}
 }

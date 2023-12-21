@@ -80,14 +80,8 @@
 					</td>
 				</tr>
 				<tr>
-					<td id="viewer">
-						<br />
-						<br />
-						<br />
+					<td id="viewer" class="p-[50px]">
 						${article.body }
-						<br />
-						<br />
-						<br />
 					</td>
 				</tr>
 			</table>

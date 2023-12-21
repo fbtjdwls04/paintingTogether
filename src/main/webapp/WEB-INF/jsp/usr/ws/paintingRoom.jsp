@@ -1,7 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-   	
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>  	
+
    	<c:set var="pageTitle" value="PaintingRoom" />
    	
    	<%@ include file="../common/head.jsp" %>
@@ -17,7 +19,7 @@
 		    stompClient.connect({}, function (frame) {
 		    	
 		    	// 채팅 구독
-		        stompClient.subscribe('/ws/chat', function (message) {
+		        stompClient.subscribe('/ws/chat/${roomId}', function (message) {
 		        	const getMessage = JSON.parse(message.body);
 		        	
 		        	if(getMessage.sender == `${nickname}`){
@@ -28,7 +30,7 @@
 		        });
 		        
 		    	// 그림판 구독
-		        stompClient.subscribe('/ws/canvas', function (message) {
+		        stompClient.subscribe('/ws/canvas/${roomId}', function (message) {
 		        	const getUrl = message.body;
 		        	printCanvasImg(getUrl);
 		        });
@@ -51,7 +53,7 @@
 			});
 	   		
 	   		function sendChat(content) {
-	   			stompClient.send("/app/chat", {}, JSON.stringify({
+	   			stompClient.send("/app/chat/${roomId}", {}, JSON.stringify({
 		    		'sender' : `${nickname}`, 
 		    		'content' : content
 		    		})
@@ -65,9 +67,6 @@
 	   		
 			/* 그림판 */
 	   		const canvas = document.getElementById('canvas');
-            const canvasContainer = document.getElementById('canvasContainer');
-            canvas.width = canvasContainer.offsetWidth;
-            canvas.height = canvasContainer.offsetHeight;
             
             const ctx = canvas.getContext('2d');
             ctx.fillStyle = "#fff";
@@ -104,7 +103,7 @@
                 ctx.beginPath();
                 
                 const dataUrl = canvas.toDataURL(); 
-                stompClient.send("/app/canvas",{}, dataUrl);
+                stompClient.send("/app/canvas/${roomId}",{}, dataUrl);
             }
 
             
@@ -212,7 +211,7 @@
 				<!-- 캔버스 영역 -->
 				<div id="canvasContainer" class="grow overflow-hidden relative">
 					<div id="circle" class="absolute border border-gray-400 rounded-full translate-x-[-49%] translate-y-[-49%] pointer-events-none"></div>
-					<canvas id="canvas" class="border"></canvas>
+					<canvas id="canvas" class="border" width="512" height="512"></canvas>
 				</div>
 				<!-- 캔버스 영역 끝 -->
 			</div>
@@ -227,9 +226,6 @@
 			</div>
 		</div>
    	</section>
-	
-	
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
 	<%@ include file="../common/foot.jsp" %>
 	

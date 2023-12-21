@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.koreaIT.paintingTogether.service.CanvasService;
 import com.koreaIT.paintingTogether.service.MemberService;
 import com.koreaIT.paintingTogether.util.Util;
+import com.koreaIT.paintingTogether.vo.Brush;
 import com.koreaIT.paintingTogether.vo.ChatMessage;
 import com.koreaIT.paintingTogether.vo.Member;
 import com.koreaIT.paintingTogether.vo.Rq;
@@ -27,30 +28,34 @@ public class UsrHomeWsContoroller {
 	}
 	
 	@RequestMapping("/usr/ws/paintingRoom")
-	public String showMain(Model model) {
-		
+	public String showMain(Model model, String roomId) {
 		Member loginedMember = memberService.getMemberById(rq.getLoginedMemberId());
 		
+		model.addAttribute("roomId",roomId);
 		model.addAttribute("nickname",loginedMember.getNickname());
 		model.addAttribute("saveCanvasUrl",canvasService.getCanvasUrl());
 		
 		return "/usr/ws/paintingRoom";
 	}
 	
-	@MessageMapping("/chat")
-    @SendTo("/ws/chat")
+	@MessageMapping("/chat/{roomId}")
+    @SendTo("/ws/chat/{roomId}")
     public ChatMessage sendMessage(ChatMessage message) {
 		message.setSender(Util.cleanText(message.getSender()));
 		message.setContent(Util.cleanText(message.getContent()));
         return message;
     }
 	
-	@MessageMapping("/canvas")
-	@SendTo("/ws/canvas")
+	@MessageMapping("/canvas/{roomId}")
+	@SendTo("/ws/canvas/{roomId}")
 	public String sendCanvas(String url) {
 		
-		canvasService.doSaveCanvas(url);
-		
+		if(canvasService.getCanvasUrl() == null) {
+			canvasService.doSaveCanvas(url);
+		}
+		else {
+			canvasService.doUpdateCanvas(url);
+		}
 		return url;
 	}
 }

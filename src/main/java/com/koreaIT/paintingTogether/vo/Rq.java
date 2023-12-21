@@ -34,6 +34,7 @@ public class Rq {
 			loginedMemberId = (int)session.getAttribute("loginedMemberId");
 		}
 		
+		this.session.setMaxInactiveInterval(0);
 		this.loginedMemberId = loginedMemberId;
 		
 		this.req.setAttribute("rq", this);
