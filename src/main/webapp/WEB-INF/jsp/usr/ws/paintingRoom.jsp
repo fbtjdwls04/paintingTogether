@@ -17,7 +17,7 @@
 			stompClient.reconnect_delay = 1000;
 			
 		    stompClient.connect({}, function (frame) {
-		    	
+
 		    	// 채팅 구독
 		        stompClient.subscribe('/ws/chat/${roomId}', function (message) {
 		        	const getMessage = JSON.parse(message.body);

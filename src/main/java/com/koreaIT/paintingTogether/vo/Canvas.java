@@ -12,5 +12,6 @@ public class Canvas {
 	private String regDate;
 	private String updateDate;
 	private String canvasUrl;
+	private String roomId;
 	
 }
