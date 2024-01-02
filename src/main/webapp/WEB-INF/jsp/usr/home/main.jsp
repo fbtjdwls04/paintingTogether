@@ -7,7 +7,16 @@
    	<%@ include file="../common/head.jsp" %>
    	
    	<script>
-   		
+   		$(document).ready(()=>{
+	   		$("#createRoom").click(()=>{
+	   			$("#createRoomModal").show();
+	   		})
+	   		
+	   		$("#closeModal").click(()=>{
+	   			$("#createRoomModal").hide();
+	   		})
+	   		
+   		})
    	</script>
    	
    	<section class="container mx-auto">
@@ -19,6 +28,12 @@
 				</form>
 			</div>
 			<div id="createRoom">
+				<button class="btn">방 개설</button>
+			</div>
+			<div id="createRoomModal" class="hidden absolute bg-white">
+				<div class="flex justify-end">
+					<button id="closeModal" class="btn">X</button>
+				</div>
 				<form action="/usr/ws/paintingRoom" onsubmit="roomSubmit(this); return false;">
 					<table>
 						<tr>
